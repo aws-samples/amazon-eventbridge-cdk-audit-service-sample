@@ -1,0 +1,6 @@
+[{
+    "Source": "custom.books-api",
+    "DetailType": "Object State Change",
+    "Detail": "{\"entity-type\":\"book\",\"entity-id\":\"03650f4e-dfd5-4584-97f7-44af7d2465b3\",\"operation\":\"update\",\"author\":\"john.doe@foo.bar\",\"ts\":\"1603293123000\",\"data\": {\"name\":\"sponge bob\"}}",
+    "EventBusName": "staging-audit-event-bus"
+}]

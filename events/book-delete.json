@@ -1,0 +1,6 @@
+[{
+    "Source": "custom.books-api",
+    "DetailType": "Object State Change",
+    "Detail": "{\"entity-type\":\"book\",\"entity-id\":\"c56b33f1-0e42-45d3-b895-4014963cefd7\",\"operation\":\"delete\",\"author\":\"john.doe@foo.bar\",\"ts\":\"1603493121000\"}",
+    "EventBusName": "staging-audit-event-bus"
+}]

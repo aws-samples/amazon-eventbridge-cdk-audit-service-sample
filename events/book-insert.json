@@ -1,0 +1,6 @@
+[{
+    "Source": "custom.books-api",
+    "DetailType": "Object State Change",
+    "Detail": "{\"entity-type\":\"book\",\"entity-id\":\"ebad79e3-abe1-450a-b505-6fd0aa466cbf\",\"operation\":\"insert\",\"author\":\"john.doe@foo.bar\",\"ts\":\"1603042460000\",\"data\": {\"name\":\"bob\"}}",
+    "EventBusName": "staging-audit-event-bus"
+}]
