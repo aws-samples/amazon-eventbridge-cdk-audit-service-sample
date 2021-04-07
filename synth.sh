@@ -6,7 +6,7 @@
 set -euo pipefail
 
 echo "********************************************"
-echo "* Synthesizing Audit Service sample *"
+echo "* Synthesizing Audit Service sample        *"
 echo "********************************************"
 echo ;
 

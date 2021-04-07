@@ -1,6 +1,6 @@
 {
-  "name": "audit-service-sample",
-  "version": "0.1.0",
+  "name": "amazon-eventbridge-cdk-audit-service-sample",
+  "version": "1.0.0",
   "bin": {
     "audit-service-sample": "bin/audit-service-sample.js"
   },
