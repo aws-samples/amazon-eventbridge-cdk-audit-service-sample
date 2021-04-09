@@ -1,6 +1,6 @@
 {
-  "name": "audit-service-sample",
-  "version": "0.1.0",
+  "name": "amazon-eventbridge-cdk-audit-service-sample",
+  "version": "1.0.0",
   "bin": {
     "audit-service-sample": "bin/audit-service-sample.js"
   },
@@ -14,7 +14,7 @@
   "author": "Amazon Web Services",
   "license": "MIT",
   "devDependencies": {
-    "@aws-cdk/assert": "^1.67.0",
+    "@aws-cdk/assert": "^1.95.1",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "jest": "^26.4.2",
@@ -24,20 +24,20 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-codepipeline": "^1.77.0",
-    "@aws-cdk/aws-codepipeline-actions": "^1.77.0",
-    "@aws-cdk/aws-dynamodb": "^1.77.0",
-    "@aws-cdk/aws-events": "^1.77.0",
-    "@aws-cdk/aws-events-targets": "^1.77.0",
-    "@aws-cdk/aws-lambda": "^1.77.0",
-    "@aws-cdk/aws-logs": "^1.77.0",
-    "@aws-cdk/aws-s3": "^1.77.0",
-    "@aws-cdk/aws-sns": "^1.77.0",
-    "@aws-cdk/aws-ssm": "^1.77.0",
-    "@aws-cdk/aws-stepfunctions": "^1.77.0",
-    "@aws-cdk/aws-stepfunctions-tasks": "^1.77.0",
-    "@aws-cdk/core": "^1.77.0",
-    "@aws-cdk/pipelines": "^1.77.0",
+    "@aws-cdk/aws-codepipeline": "^1.95.1",
+    "@aws-cdk/aws-codepipeline-actions": "^1.95.1",
+    "@aws-cdk/aws-dynamodb": "^1.95.1",
+    "@aws-cdk/aws-events": "^1.95.1",
+    "@aws-cdk/aws-events-targets": "^1.95.1",
+    "@aws-cdk/aws-lambda": "^1.95.1",
+    "@aws-cdk/aws-logs": "^1.95.1",
+    "@aws-cdk/aws-s3": "^1.95.1",
+    "@aws-cdk/aws-sns": "^1.95.1",
+    "@aws-cdk/aws-ssm": "^1.95.1",
+    "@aws-cdk/aws-stepfunctions": "^1.95.1",
+    "@aws-cdk/aws-stepfunctions-tasks": "^1.95.1",
+    "@aws-cdk/core": "^1.95.1",
+    "@aws-cdk/pipelines": "^1.95.1",
     "source-map-support": "^0.5.16"
   }
 }

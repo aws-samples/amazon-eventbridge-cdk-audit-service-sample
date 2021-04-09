@@ -9,7 +9,7 @@
   "author": "Amazon Web Services",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.792.0",    
+    "aws-sdk": "^2.792.0",
     "chai": "^4.2.0",
     "mocha": "^8.2.1",
     "uuid": "^8.3.1"
