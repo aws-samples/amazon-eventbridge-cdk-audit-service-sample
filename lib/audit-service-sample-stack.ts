@@ -19,7 +19,7 @@ export class AuditServiceStack extends cdk.Stack {
   public readonly busName: CfnOutput;
   public readonly bucketName: CfnOutput;
   public readonly tableName: CfnOutput;
-  public readonly logGrupName: CfnOutput;
+  public readonly logGroupName: CfnOutput;
   public readonly topicName: CfnOutput;
   
   constructor(scope: cdk.Construct, id: string, props?: AuditServiceStackProps) {
@@ -111,7 +111,7 @@ export class AuditServiceStack extends cdk.Stack {
       description: 'Name of the table created to store audit events'
     });
 
-    this.logGrupName = new CfnOutput(this, 'LogGroupName', {
+    this.logGroupName = new CfnOutput(this, 'LogGroupName', {
       value: logGroup.logGroupName,
       description: 'Name of the log group created to store all events'
     });

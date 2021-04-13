@@ -28,7 +28,7 @@ export class AuditServiceDeployStage extends Stage {
     this.busName = stack.busName
     this.bucketName = stack.bucketName;
     this.tableName = stack.tableName;
-    this.logGroupName = stack.logGrupName;
+    this.logGroupName = stack.logGroupName;
     this.topicName = stack.topicName;
   }
 }
