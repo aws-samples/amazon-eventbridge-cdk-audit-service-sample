@@ -132,8 +132,8 @@ cdk destroy
 Then, remove stacks for each environment through:
 
 ```bash
-aws cloudformation delete-stack --stack--name Staging-AuditService
-aws cloudformation delete-stack --stack--name Production-AuditService
+aws cloudformation delete-stack --stack-name Staging-AuditService
+aws cloudformation delete-stack --stack-name Production-AuditService
 ```
 
 Be aware some resources will not be removed as part of the deletion operation and they will have to be deleted manually: DynamoDB table, S3 bucket and CloudWatch log group.
