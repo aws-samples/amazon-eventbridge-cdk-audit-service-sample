@@ -24,6 +24,7 @@ export class PipelineStack extends Stack {
       synth: new ShellStep('Synth', {
         input: source,
         commands: [
+          'npm ci',
           'npm run build',
           'npm run synth'
         ]
