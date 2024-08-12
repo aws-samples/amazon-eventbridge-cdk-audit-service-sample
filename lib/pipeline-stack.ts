@@ -60,7 +60,6 @@ export class PipelineStack extends Stack {
         'npm ci',
       ],
       commands: [
-        'cd test',
         'npm test'
       ],
       role
