@@ -11,7 +11,7 @@ echo "********************************************"
 echo ;
 
 echo "Building main project..."
-tsc
+npm run tsc
 echo -e "Done.\n"
 
 echo "Executing unit tests..."
