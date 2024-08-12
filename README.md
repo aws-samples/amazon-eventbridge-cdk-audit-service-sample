@@ -58,9 +58,9 @@ aws events put-events --entries file://./events/book-insert.json
 
 ## Requirements
 
-- Node.js 16.13 ([lts/erbium](https://nodejs.org/en/blog/release/v12.13.0/))
-- npm 8.19
-- [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) 1.103.0 or above.
+- [Node v20.16.0](https://nodejs.org/en/blog/release/v20.16.0/)
+- npm 10.8.1
+- [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) 2.151.0 or above.
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html). You must have run `aws configure` to set up your terminal.
 
 ## Deployment

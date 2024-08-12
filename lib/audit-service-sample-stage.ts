@@ -1,7 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { CfnOutput, Construct, Stage, StageProps, Tags } from "@aws-cdk/core"
+import { Construct } from "constructs";
+import { CfnOutput, Stage, StageProps, Tags } from "aws-cdk-lib";
 import { AuditServiceStack } from "./audit-service-sample-stack";
 
 interface DeployStageProps extends StageProps {

@@ -18,7 +18,7 @@ describe('Save event to S3', () => {
   let s3Stub;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();
+    sandbox = sinon.createSandbox();    
     AWSMock.setSDKInstance(AWS);    
   });
 

@@ -1,41 +1,32 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Construct, SecretValue, Stack, StackProps } from "@aws-cdk/core"
-import * as codepipeline from '@aws-cdk/aws-codepipeline';
-import * as codepipeline_actions from '@aws-cdk/aws-codepipeline-actions';
-import { CdkPipeline, ShellScriptAction, SimpleSynthAction } from "@aws-cdk/pipelines";
-import * as ssm from '@aws-cdk/aws-ssm';
+import { Construct } from "constructs";
+
+import { Stack, StackProps } from "aws-cdk-lib";
+import { CodePipeline, ShellStep, CodePipelineSource, ManualApprovalStep, CodeBuildStep } from 'aws-cdk-lib/pipelines';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
+
 import { AuditServiceDeployStage } from "./audit-service-sample-stage";
+import { Role, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 
 export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const sourceArtifacts = new codepipeline.Artifact();
-    const cloudAssemblyArtifacts = new codepipeline.Artifact();
+    const source = CodePipelineSource.connection('jbernalvallejo/amazon-eventbridge-cdk-audit-service-sample', 'main', {
+      connectionArn: ssm.StringParameter.fromStringParameterName(this, 'GithubConnectionArn', 'github_connection_arn').stringValue
+    });
 
-    const pipeline = new CdkPipeline(this, 'AuditServicePipeline', {
+    const pipeline = new CodePipeline(this, 'AuditServicePipeline', {
       crossAccountKeys: false, // https://docs.aws.amazon.com/cdk/api/latest/docs/pipelines-readme.html#a-note-on-cost
-      pipelineName: 'AuditService',
-      cloudAssemblyArtifact: cloudAssemblyArtifacts,
-
-      // source
-      sourceAction: new codepipeline_actions.GitHubSourceAction({
-        actionName: 'Source',
-        output: sourceArtifacts,
-        owner: ssm.StringParameter.fromStringParameterName(this, 'GithubUsername', 'github_username').stringValue,
-        repo: 'amazon-eventbridge-cdk-audit-service-sample',
-        oauthToken: SecretValue.secretsManager('github_token', { jsonField: 'github_token' }),
-        branch: 'main'
-      }),
-
-      // build
-      synthAction: SimpleSynthAction.standardNpmSynth({
-        sourceArtifact: sourceArtifacts,
-        cloudAssemblyArtifact: cloudAssemblyArtifacts,
-        buildCommand: 'npm run build',
-        synthCommand: 'npm run synth'
+      pipelineName: 'AuditService',      
+      synth: new ShellStep('Synth', {
+        input: source,
+        commands: [
+          'npm run build',
+          'npm run synth'
+        ]
       })
     });
 
@@ -43,36 +34,46 @@ export class PipelineStack extends Stack {
     const stagingDeploy = new AuditServiceDeployStage(this, 'Staging', {
       logicalEnv: 'staging'
     });
-    const stagingStage = pipeline.addApplicationStage(stagingDeploy);
+    const stagingStage = pipeline.addStage(stagingDeploy);
 
-    const e2eTestAction = new ShellScriptAction({
-      actionName: 'Test',
-      useOutputs: {
-        AUDIT_EVENT_BUS_NAME: pipeline.stackOutput(stagingDeploy.busName),
-        AUDIT_BUCKET_NAME: pipeline.stackOutput(stagingDeploy.bucketName),
-        AUDIT_TABLE_NAME: pipeline.stackOutput(stagingDeploy.tableName),
-        AUDIT_LOG_GROUP_NAME: pipeline.stackOutput(stagingDeploy.logGroupName),
-        AUDIT_TOPIC_NAME: pipeline.stackOutput(stagingDeploy.topicName)
-      },
-      additionalArtifacts: [sourceArtifacts],
-      commands: [
-        'cd test',
-        'npm ci',
-        'npm test'
-      ]
+    const role = new Role(this, 'TestStepRole', {
+      assumedBy: new ServicePrincipal('codebuild.amazonaws.com'),
     });
 
-    stagingStage.addActions(e2eTestAction);
-    e2eTestAction.project.role?.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess'});
-    e2eTestAction.project.role?.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'});
-    e2eTestAction.project.role?.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'});
-    e2eTestAction.project.role?.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/CloudWatchLogsReadOnlyAccess'});
+    role.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess'});
+    role.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'});
+    role.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'});
+    role.addManagedPolicy({managedPolicyArn: 'arn:aws:iam::aws:policy/CloudWatchLogsReadOnlyAccess'});
+
+    const e2eTestAction = new CodeBuildStep('Test', {
+      input: source,
+      envFromCfnOutputs: {
+        AUDIT_EVENT_BUS_NAME: stagingDeploy.busName,
+        AUDIT_BUCKET_NAME: stagingDeploy.bucketName,
+        AUDIT_TABLE_NAME: stagingDeploy.tableName,
+        AUDIT_LOG_GROUP_NAME: stagingDeploy.logGroupName,
+        AUDIT_TOPIC_NAME: stagingDeploy.topicName
+      },
+      installCommands: [
+        'cd test',
+        'npm ci',
+      ],
+      commands: [
+        'cd test',
+        'npm test'
+      ],
+      role
+    });
+    
+    stagingStage.addPost(e2eTestAction);
 
     // deploy to production
-    pipeline.addApplicationStage(new AuditServiceDeployStage(this, 'Production', {
+    pipeline.addStage(new AuditServiceDeployStage(this, 'Production', {
       logicalEnv: 'production'
     }), {
-      manualApprovals: true
+      pre: [
+        new ManualApprovalStep('PromoteToProd')
+      ]
     });
   }
 }
