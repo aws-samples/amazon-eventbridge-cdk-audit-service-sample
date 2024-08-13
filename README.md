@@ -89,7 +89,7 @@ export AWS_REGION=$(aws configure get region)
 cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION
 ```
 
-Then, run the following to deploy the app:
+Finally, run the following to deploy the app:
 
 ```sh
 npm run build

@@ -14,7 +14,7 @@ export class PipelineStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const gitOrg = 'jbernalvallejo';
+    const gitOrg = 'aws-samples';
 
     const source = CodePipelineSource.connection(`${gitOrg}/amazon-eventbridge-cdk-audit-service-sample`, 'main', {
       connectionArn: ssm.StringParameter.fromStringParameterName(this, 'GithubConnectionArn', 'github_connection_arn').stringValue
