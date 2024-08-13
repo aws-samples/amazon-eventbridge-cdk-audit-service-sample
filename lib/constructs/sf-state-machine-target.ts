@@ -1,14 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Construct } from "@aws-cdk/core";
+import { Construct } from "constructs";
 
-import { AttributeType, BillingMode, Table } from "@aws-cdk/aws-dynamodb";
-import { Code, Runtime, Tracing, Function } from "@aws-cdk/aws-lambda";
-import { Bucket, BucketEncryption } from "@aws-cdk/aws-s3";
+import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
+import { Code, Runtime, Tracing, Function } from "aws-cdk-lib/aws-lambda";
+import { Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 
-import { JsonPath, StateMachine } from "@aws-cdk/aws-stepfunctions";
-import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
+import { DefinitionBody, JsonPath, StateMachine } from "aws-cdk-lib/aws-stepfunctions";
+import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 
 interface StateMachineTargetProps {
   logicalEnv: string;
@@ -35,7 +35,7 @@ export class StateMachineTarget extends Construct {
     // lambda function
     const saveToS3Fn = new Function(this, 'SaveToS3Fn', {
       functionName: `${prefix}-save-to-s3`,
-      runtime: Runtime.NODEJS_12_X,
+      runtime: Runtime.NODEJS_20_X,
       handler: 'index.handler',
       code: Code.fromAsset('./lib/lambda/save-to-s3'),
       environment: {
@@ -88,7 +88,7 @@ export class StateMachineTarget extends Construct {
     const definition = saveToS3Job.next(saveToDbJob);
 
     this.stateMachine = new StateMachine(this, 'LogAuditEvent', {
-      definition,
+      definitionBody: DefinitionBody.fromChainable(definition),
       stateMachineName: `${prefix}-log-audit-event`
     });
   }

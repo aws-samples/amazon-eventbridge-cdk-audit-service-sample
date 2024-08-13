@@ -1,20 +1,20 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import * as cdk from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { Stack, StackProps, CfnOutput, Stage, StageProps, Tags } from "aws-cdk-lib";
 
-import { EventBus, Rule, CfnRule, RuleTargetInput, EventField } from '@aws-cdk/aws-events';
-import * as targets from '@aws-cdk/aws-events-targets';
+import { EventBus, Rule, CfnRule, RuleTargetInput, EventField } from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { StateMachineTarget } from './constructs/sf-state-machine-target';
-import { CfnOutput } from '@aws-cdk/core';
-import { LogGroup, RetentionDays } from '@aws-cdk/aws-logs';
-import { Topic } from '@aws-cdk/aws-sns';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Topic } from 'aws-cdk-lib/aws-sns';
 
-interface AuditServiceStackProps extends cdk.StackProps {
+interface AuditServiceStackProps extends StackProps {
   logicalEnv: string;
 }
 
-export class AuditServiceStack extends cdk.Stack {
+export class AuditServiceStack extends Stack {
   
   public readonly busName: CfnOutput;
   public readonly bucketName: CfnOutput;
@@ -22,7 +22,7 @@ export class AuditServiceStack extends cdk.Stack {
   public readonly logGroupName: CfnOutput;
   public readonly topicName: CfnOutput;
   
-  constructor(scope: cdk.Construct, id: string, props?: AuditServiceStackProps) {
+  constructor(scope: Construct, id: string, props?: AuditServiceStackProps) {
     super(scope, id, props);
 
     const prefix = props?.logicalEnv;

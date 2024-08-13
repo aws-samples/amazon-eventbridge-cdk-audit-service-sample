@@ -1,23 +1,24 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import { Stack } from "@aws-cdk/core";
+import { Stack } from "aws-cdk-lib";
 import { StateMachineTarget } from "./sf-state-machine-target";
 
-import '@aws-cdk/assert/jest';
+import { Template } from "aws-cdk-lib/assertions";
 
-let stack: Stack;
+let template: Template;
 
 beforeEach(() => {
-  stack = new Stack();
+  const stack: Stack = new Stack();
   new StateMachineTarget(stack, 'stateMachine', {
     logicalEnv: 'test',
     accountId: '11111111'
   });
+  template = Template.fromStack(stack);
 });
 
 test('should create S3 bucket', () => {
-  expect(stack).toHaveResource('AWS::S3::Bucket', {
+  template.hasResourceProperties('AWS::S3::Bucket', {
     BucketName: 'test-audit-events-11111111',
     BucketEncryption: {
       ServerSideEncryptionConfiguration: [
@@ -30,9 +31,9 @@ test('should create S3 bucket', () => {
 });
 
 test('should create Lambda function', () => {
-  expect(stack).toHaveResourceLike('AWS::Lambda::Function', {
+  template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'test-save-to-s3',
-    Runtime: 'nodejs12.x',
+    Runtime: 'nodejs20.x',
     TracingConfig: {
       Mode: 'Active'
     },
@@ -45,7 +46,7 @@ test('should create Lambda function', () => {
 });
 
 test('should create table with expected partition key', () => {
-  expect(stack).toHaveResource('AWS::DynamoDB::Table', {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
     TableName: 'test-audit-events',
     BillingMode: 'PAY_PER_REQUEST',
     KeySchema: [{
@@ -56,7 +57,7 @@ test('should create table with expected partition key', () => {
 });
 
 test('should create table with expected global secondary indexes', () => {
-  expect(stack).toHaveResource('AWS::DynamoDB::Table', {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
     GlobalSecondaryIndexes: [{
       IndexName: 'search-by-entity-id',
       KeySchema: [{
@@ -82,7 +83,7 @@ test('should create table with expected global secondary indexes', () => {
 });
 
 test('should create state machine', () => {
-  expect(stack).toHaveResource('AWS::StepFunctions::StateMachine', {
+  template.hasResourceProperties('AWS::StepFunctions::StateMachine', {
     StateMachineName: 'test-log-audit-event'
   });
 });

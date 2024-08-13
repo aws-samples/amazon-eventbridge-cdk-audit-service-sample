@@ -58,21 +58,22 @@ aws events put-events --entries file://./events/book-insert.json
 
 ## Requirements
 
-- Node.js 16.13 ([lts/erbium](https://nodejs.org/en/blog/release/v12.13.0/))
-- npm 8.19
-- [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) 1.103.0 or above.
+- [Node v20.16.0](https://nodejs.org/en/blog/release/v20.16.0/)
+- npm 10.8.1
+- [AWS CDK Toolkit](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) 2.151.0 or above.
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html). You must have run `aws configure` to set up your terminal.
+- [Create a Github Connection](https://docs.aws.amazon.com/codepipeline/latest/userguide/connections-github.html) to your repository and note down the connection ARN as you will need it in the following step.
 
 ## Deployment
 
-To set up your environment for the first time, run the following commands:
+First, replace the `gitOrg` variable on `lib/pipeline-stack.ts` to point to your organization or username on Github where this repository has been forked to.
+
+Then, to set up your environment, run the following commands:
 
 ```sh
 # create the required parameters in your AWS account so
 # AWS CodePipeline can connect to Github and pull source code
-aws ssm put-parameter --name github_username --value <YOUR_GITHUB_USERNAME>
-aws secretsmanager create-secret --name github_token
-aws secretsmanager put-secret-value --secret-id github_token --secret-string '{"github_token": "<YOUR_GITHUB_TOKEN>"}'
+aws ssm put-parameter --name github_connection_arn --value <YOUR_GITHUB_CONNECTION_ARN>
 
 # install aws cdk
 npm install -g aws-cdk
@@ -88,7 +89,7 @@ export AWS_REGION=$(aws configure get region)
 cdk bootstrap aws://$ACCOUNT_ID/$AWS_REGION
 ```
 
-Then, run the following to deploy the app:
+Finally, run the following to deploy the app:
 
 ```sh
 npm run build
