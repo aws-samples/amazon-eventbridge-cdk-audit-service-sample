@@ -35,7 +35,7 @@ export class StateMachineTarget extends Construct {
     // lambda function
     const saveToS3Fn = new Function(this, 'SaveToS3Fn', {
       functionName: `${prefix}-save-to-s3`,
-      runtime: Runtime.NODEJS_20_X,
+      runtime: Runtime.NODEJS_24_X,
       handler: 'index.handler',
       code: Code.fromAsset('./lib/lambda/save-to-s3'),
       environment: {

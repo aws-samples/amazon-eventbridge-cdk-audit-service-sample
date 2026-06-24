@@ -3,14 +3,17 @@
 
 const { expect } = require('chai');
 
-const {v4: uuidv4} = require('uuid');
+const { randomUUID } = require('node:crypto');
+const { CloudWatchLogsClient, FilterLogEventsCommand } = require('@aws-sdk/client-cloudwatch-logs');
+const { DynamoDBClient, GetItemCommand } = require('@aws-sdk/client-dynamodb');
+const { EventBridgeClient, PutEventsCommand } = require('@aws-sdk/client-eventbridge');
+const { GetObjectCommand, NoSuchKey, S3Client } = require('@aws-sdk/client-s3');
 
 const region = process.env.AWS_REGION;
-const AWS = require('aws-sdk');
-const eb = new AWS.EventBridge({region, apiVersion: '2015-10-07'});
-const dynamodb = new AWS.DynamoDB({region, apiVersion: '2012-08-10'});
-const s3 = new AWS.S3({region, apiVersion: '2006-03-01'});
-const logs = new AWS.CloudWatchLogs({region, apiVersion: '2014-03-28'});
+const eb = new EventBridgeClient({region});
+const dynamodb = new DynamoDBClient({region});
+const s3 = new S3Client({region});
+const logs = new CloudWatchLogsClient({region});
 
 describe('End-to-end tests for the audit service', () => {
 
@@ -34,7 +37,7 @@ describe('End-to-end tests for the audit service', () => {
         Source: 'custom.books-api'
       }]
     };
-    const result = await eb.putEvents(params).promise();
+    const result = await eb.send(new PutEventsCommand(params));
 
     // allow event to propagate and execute targets
     await wait(3500);
@@ -67,7 +70,7 @@ describe('End-to-end tests for the audit service', () => {
         Source: 'custom.books-api'
       }]
     };
-    const result = await eb.putEvents(params).promise();
+    const result = await eb.send(new PutEventsCommand(params));
 
     // allow event to propagate and execute targets
     await wait();
@@ -95,7 +98,7 @@ describe('End-to-end tests for the audit service', () => {
         Source: 'custom.books-api'
       }]
     };
-    const result = await eb.putEvents(params).promise();
+    const result = await eb.send(new PutEventsCommand(params));
 
     // allow event to propagate and execute targets
     await wait();
@@ -121,7 +124,7 @@ describe('End-to-end tests for the audit service', () => {
           Source: 'any.system'
         }]
       };
-      const result = await eb.putEvents(params).promise();
+      const result = await eb.send(new PutEventsCommand(params));
   
       // allow event to propagate and execute targets
       await wait();
@@ -147,7 +150,7 @@ describe('End-to-end tests for the audit service', () => {
   function buildEvent(props) {
     return {
       'entity-type': 'book', 
-      'entity-id': uuidv4(),
+      'entity-id': randomUUID(),
       operation: 'insert',
       author: 'john.doe@foo.bar', 
       ts: Date.now().toString(),
@@ -174,7 +177,7 @@ describe('End-to-end tests for the audit service', () => {
         }
       };
       
-      const result = await dynamodb.getItem(params).promise();
+      const result = await dynamodb.send(new GetItemCommand(params));
       
       if (!result.Item) {
         throw new Error(`Item with EventId=${eventId} not found`);
@@ -210,15 +213,15 @@ describe('End-to-end tests for the audit service', () => {
         Key: key
       };
  
-      const result = await s3.getObject(params).promise();
+      const result = await s3.send(new GetObjectCommand(params));
       
       if (!result) {
         throw new Error(`Object with key=${key} not found`);
       }
 
-      return JSON.parse(result.Body.toString('utf-8'));
+      return JSON.parse(await result.Body.transformToString('utf-8'));
     } catch (e) {
-      if (e.statusCode !== 404) {
+      if (!(e instanceof NoSuchKey) && e.$metadata?.httpStatusCode !== 404) {
         console.log('error retrieving audit event from s3', e);
         throw e;
       }
@@ -235,7 +238,7 @@ describe('End-to-end tests for the audit service', () => {
         endTime: Math.ceil((ts+1000)/1000) * 1000
       };
       
-      const result = await logs.filterLogEvents(params).promise();
+      const result = await logs.send(new FilterLogEventsCommand(params));
             
       if (!result || result.events.length === 0) {
         throw new Error(`Log events not found for time range around ${ts}`);
@@ -247,7 +250,7 @@ describe('End-to-end tests for the audit service', () => {
       });
 
       if (!event) {
-        throw new Error(`Log for event id with key=${key} not found`);
+        throw new Error(`Log for event id=${eventId} not found`);
       }
 
       return JSON.parse(event.message);
