@@ -5,26 +5,32 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register ./tests/*.spec.js"
+    "test": "npm run build && mocha ./tests/*.spec.js"
   },
   "author": "Amazon Web Services",
   "license": "MIT",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
+  },
   "dependencies": {
-    "aws-sdk": "^2.1672.0"
+    "@aws-sdk/client-s3": "^3.1075.0"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.143",
+    "@types/aws-lambda": "^8.10.162",
     "@types/chai": "^4.3.17",
-    "@types/mocha": "^10.0.7",
-    "@types/node": "^22.2.0",
-    "@types/sinon": "^17.0.3",
-    "@types/sinon-chai": "^3.2.12",
-    "aws-sdk-mock": "^5.1.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.0.0",
+    "@types/sinon": "^21.0.1",
+    "@types/sinon-chai": "^4.0.0",
     "chai": "^4.2.0",
-    "mocha": "9.2.2",
-    "sinon": "^9.2.0",
+    "mocha": "^11.3.0",
+    "sinon": "^22.0.0",
     "sinon-chai": "^3.5.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.4"
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "serialize-javascript": "^7.0.6"
   }
 }

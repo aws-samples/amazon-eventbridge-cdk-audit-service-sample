@@ -15,7 +15,7 @@ cd lib/lambda/
 
 cd save-to-s3
 echo "- save-to-s3"
-npm prune --production
+npm prune --omit=dev
 echo "- Done."
 
 cd ../../..

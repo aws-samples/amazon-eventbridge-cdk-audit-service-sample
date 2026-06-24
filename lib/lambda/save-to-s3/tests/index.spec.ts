@@ -3,34 +3,30 @@
 
 import * as chai from 'chai';
 import * as sinon from 'sinon';
-import * as sinonChai from 'sinon-chai';
+import { S3Client } from '@aws-sdk/client-s3';
+
+const sinonChai = require('sinon-chai') as Chai.ChaiPlugin;
 
 chai.use(sinonChai);
 const expect = chai.expect;
-
-import * as AWSMock from 'aws-sdk-mock';
-import * as AWS from 'aws-sdk';
 
 import {handler} from '../index';
 
 describe('Save event to S3', () => {
   let sandbox: sinon.SinonSandbox;
-  let s3Stub;
+  let s3Stub: sinon.SinonStub;
 
   beforeEach(() => {
-    sandbox = sinon.createSandbox();    
-    AWSMock.setSDKInstance(AWS);    
+    sandbox = sinon.createSandbox();
   });
 
   afterEach(() => {
-    AWSMock.restore('S3');
     sandbox.restore();
   });
 
   it("should generate the appropiate key for the object in S3", async () => {
     // arrange
-    s3Stub = sandbox.stub().callsFake((params, cb) => cb(null));
-    AWSMock.mock('S3', 'putObject', s3Stub);
+    s3Stub = sandbox.stub(S3Client.prototype, 'send').resolves({});
 
     // act
     const event = buildAuditEvent();
@@ -43,8 +39,7 @@ describe('Save event to S3', () => {
 
   it("should save object into S3", async () => {
     // arrange
-    s3Stub = sandbox.stub().callsFake((params, cb) => cb(null));
-    AWSMock.mock('S3', 'putObject', s3Stub);
+    s3Stub = sandbox.stub(S3Client.prototype, 'send').resolves({});
 
     // act
     const event = buildAuditEvent();
@@ -52,17 +47,16 @@ describe('Save event to S3', () => {
 
     // assert    
     expect(s3Stub).to.have.been.calledOnce;
-    const args = s3Stub.getCall(0).args[0];
-    expect(args).to.have.property('Bucket', 'audit-events');
-    expect(args).to.have.property('ContentType', 'application/json');
-    expect(args).to.have.property('Key', '2020/10/21/473edc2b-a079-4fa9-8fb3-3ccf602f4957');
-    expect(args).to.have.property('Body', '{"name":"foo"}');
+    const command = s3Stub.getCall(0).args[0];
+    expect(command.input).to.have.property('Bucket', 'audit-events');
+    expect(command.input).to.have.property('ContentType', 'application/json');
+    expect(command.input).to.have.property('Key', '2020/10/21/473edc2b-a079-4fa9-8fb3-3ccf602f4957');
+    expect(command.input).to.have.property('Body', '{"name":"foo"}');
   });
 
   it("should not save object into S3 if there is no data", async () => {
     // arrange
-    s3Stub = sandbox.stub().callsFake((params, cb) => cb(null));
-    AWSMock.mock('S3', 'putObject', s3Stub);
+    s3Stub = sandbox.stub(S3Client.prototype, 'send').resolves({});
 
     // act
     const event = buildAuditEvent(false);
@@ -76,8 +70,7 @@ describe('Save event to S3', () => {
   it("should re-throw exception if any thrown by S3 client", async () => {
     // arrange
     const e = new Error();
-    s3Stub = sandbox.stub().callsFake((params, cb) => cb(e));
-    AWSMock.mock('S3', 'putObject', s3Stub);
+    s3Stub = sandbox.stub(S3Client.prototype, 'send').rejects(e);
 
     //act && assert
     const event = buildAuditEvent();

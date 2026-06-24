@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import * as AWS from 'aws-sdk';
-import { PutObjectRequest } from 'aws-sdk/clients/s3';
+import { PutObjectCommand, PutObjectCommandInput, S3Client } from '@aws-sdk/client-s3';
 
 const bucket = process.env.BUCKET_NAME || 'audit-events';
+const s3 = new S3Client({});
 
 async function handler(event: any): Promise<string | void> {
   try {
@@ -17,14 +17,13 @@ async function handler(event: any): Promise<string | void> {
 
     const key = generateS3Key(event);
     const body = JSON.stringify(event.detail.data);
-    const params: PutObjectRequest = {
+    const params: PutObjectCommandInput = {
       Body: body,
       ContentType: 'application/json',
       Bucket: bucket, 
       Key: key
      };
-    const s3 = new AWS.S3({apiVersion: '2006-03-01'});
-    await s3.putObject(params).promise();
+    await s3.send(new PutObjectCommand(params));
     return key;
 
   } catch (e) {

@@ -33,7 +33,7 @@ test('should create S3 bucket', () => {
 test('should create Lambda function', () => {
   template.hasResourceProperties('AWS::Lambda::Function', {
     FunctionName: 'test-save-to-s3',
-    Runtime: 'nodejs20.x',
+    Runtime: 'nodejs24.x',
     TracingConfig: {
       Mode: 'Active'
     },
